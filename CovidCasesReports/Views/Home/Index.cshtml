@@ -1,0 +1,169 @@
+﻿@model dynamic
+@using CovidCasesReports.Models;
+
+@{
+    ViewData["Title"] = "Covid Cases Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #tblReportByRegions {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #tblReportByRegions td, #tblReportByRegions th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #tblReportByRegions tr:nth-child(even) {
+            background-color: lightgrey;
+        }
+
+        #tblReportByRegions tr:hover {
+            background-color: #ddd;
+        }
+
+        #tblReportByRegions th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: darkslategray;
+            color: white;
+        }
+
+    .menuParent div {
+        float: left;
+        clear: none;
+    }
+
+    .btn-group .button {
+        background-color: cadetblue;
+        border: 1px solid darkslategray;
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        float: left;
+        border-radius: 2px;
+        text-align: right;
+        padding-left: 15px;
+        padding-right: 15px;
+        margin-right: 3px
+    }
+
+        .btn-group .button:not(:last-child) {
+            border-right: none;
+        }
+
+        .btn-group .button:hover {
+            background-color: #3e8e41;
+        }
+
+    .btnReport .button {
+        background-color: darkslategray;
+        border: 1px solid darkslategray;
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        float: left;
+        border-radius: 2px;
+        text-align: right;
+        padding-left: 5px;
+        padding-right: 5px;
+        margin-left: 10px;
+        margin-right: 60px;
+        -webkit-transition-duration: 0.4s;
+        transition-duration: 0.4s;
+    }
+
+    #selectedRegions {
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 20px;
+        border: 1px solid gray;
+    }
+</style>
+
+<br />
+<h4 style=""> TOP 10 COVID CASES</h4>
+<p> </p>
+<form action="/Home/Index" method="post">
+    <div class="menuParent">
+        <div>
+            <select id="selectedRegions" name="selectedRegions" style="padding-right: 10px">
+                <option label="Regions" value="Regions"></option>
+                @foreach (var region in Model.regions)
+                {
+                    <option label="@region.region.name" value="@region.region.iso"></option>
+                }
+            </select>
+
+        </div>
+        <div class="btnReport">
+            <button id="btnReport" name="submitButton" value="report" type="submit" class="button"> Report </button>
+        </div>
+        <div class="btn-group">
+                <button id="btnXML" name="submitButton" class="button" value="XML"> XML </button>
+                <button id="btnJSON" name="submitButton" class="button" value="JSON"> JSON </button>
+                <button id="btnPDF" name="submitButton" class="button" value="PDF"> PDF </button>
+            
+        </div>
+
+        <br />
+    </div>
+</form>
+<br />
+<br />
+
+<table id="tblReportByRegions">
+    <thead>
+        <tr>
+            @if (Model.display == "Regions")
+            {
+                <th>Region</th>
+            }@if (Model.display != "Regions")
+            {
+                <th>@Model.display</th>
+            }
+
+            <th style="text-align:center">Cases</th>
+            <th style="text-align:center">Deaths</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.display == "Regions")
+        {
+            @foreach (var region in Model.regions)
+            {
+                <tr>
+                    <td width="20%">@region.region.name</td>
+                    <td width="20%" style="text-align:center">@String.Format("{0:n0}", region.confirmed)</td>
+                    <td width="20%" style="text-align:center">@String.Format("{0:n0}", region.deaths)</td>
+                </tr>
+            }
+        }@if (Model.display != "Regions")
+        {
+            @foreach (var province in Model.provinces)
+            {
+                <tr>
+                    @if (@province.region.province == "")
+                    {
+                        <td>@province.region.name</td>
+                    }
+                    @if (@province.region.province != "")
+                    {
+                        <td>@province.region.province</td>
+                    }
+
+                    <td style="text-align:center">@String.Format("{0:n0}", province.confirmed)</td>
+                    <td style="text-align:center">@String.Format("{0:n0}", province.deaths)</td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+
+
